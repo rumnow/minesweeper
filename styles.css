@@ -1,0 +1,58 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f5f5f5;
+}
+
+.field {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+#display {
+    width: 90%;
+    padding: 10px;
+    font-size: 1.5em;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    text-align: right;
+}
+
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0px;
+}
+
+button {
+    padding: 1px;
+    height: 40px;
+    width: 40px;
+    text-align: center;     /* горизонтальное выравнивание текста по центру */
+    font-size: 24px;        /* размер шрифта; менять размер кнопки не будет */
+    border: 0px solid #ccc; /* граница для демонстрации */
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 1s;
+}
+
+button:hover {
+    background-color: #f5f5f5;
+}
+
+button[data-value="0"] {
+    background-color: #a09f9f;
+    color: white;
+}
+
+button[data-value="💣"] {
+    background-color: #dc3545;
+    color: white;
+}
