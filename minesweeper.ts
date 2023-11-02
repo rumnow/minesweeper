@@ -2,21 +2,26 @@ const fieldSize = 100;
 const minesCount: number = 10;
 const fieldWidth = Math.sqrt(fieldSize);
 const arrField: number[] = new Array(fieldSize).fill(0);
-//console.log(fieldWidth);
-//const neighborIndexes: number[] = [-(fieldWidth-1), -fieldWidth, -(fieldWidth+1), -1, 1,
-//    fieldWidth, fieldWidth-1, fieldWidth+1];
+const arrChecked: boolean[] = new Array(fieldSize).fill(false);
+
 const buttonsContainer = document.querySelector('.buttons');
 
-for (let i: number = 0; i < minesCount; i++) {
-    if (arrField[i] !== 9) {
-        arrField[i] = 9;
+//расставляем мины
+let i: number = 0;
+let setRandomNine = () => {
+    let r: number = Math.floor(Math.random() * fieldSize);
+    if (arrField[r] !== 9) {
+        arrField[r] = 9;
+        i++;
+    } else {
+        setRandomNine();
     }
 }
-for (let i = arrField.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arrField[i], arrField[j]] = [arrField[j], arrField[i]];
+while (i < minesCount) {
+    setRandomNine();
 }
 
+//создаем кнопки
 buttonsContainer?.setAttribute('style', `grid-template-columns: repeat(${fieldWidth}, 1fr);`);
 arrField.forEach((_, index) => {
     const button = document.createElement('button');
@@ -26,11 +31,18 @@ arrField.forEach((_, index) => {
     buttonsContainer?.appendChild(button);
 
     button.addEventListener('click', function() {
-        if (this.textContent !== '⛳️'){
+        arrChecked[index] = true;
+        if (this.textContent !== '⛳️'){ //проверяем на флажок
             if (arrField[Number(this.getAttribute('index'))] === 9) {
-                this.textContent = '💣';
-                this.setAttribute('data-value', '💣');
-            } else {
+                //const allBombs = document.querySelectorAll(`button[index="${index}"]`);
+                for (let indBomb in arrField) {
+                    if (arrField[indBomb] === 9) {
+                        const cell = document.querySelector(`button[index="${indBomb}"]`) as HTMLButtonElement;
+                        cell.textContent = '💣'; //если наступили на бомбу
+                        cell.setAttribute('data-value', '💣');
+                    }
+                }
+            } else {  // выбираем соседей
                 let mines: number = 0;
                 let currentIndex = Number(this.getAttribute('index'));
                 let neighborI: number[] = [];
@@ -58,27 +70,24 @@ arrField.forEach((_, index) => {
                         break;
                     case ((currentIndex + 1) % fieldWidth === 0): //правый столбец
                         neighborI = [-fieldWidth-1, -fieldWidth, -1, fieldWidth, fieldWidth-1];
-
                         break;
-                    default:
+                    default: //обычные клетки 8 соседей
                         neighborI = [-fieldWidth-1, -fieldWidth, -fieldWidth+1, -1, 1,
                             fieldWidth, fieldWidth-1, fieldWidth+1];
-                        console.log(currentIndex);
+                        //console.log(currentIndex);
                 }
-                neighborI.forEach(element => {
+                neighborI.forEach(element => { //расчитываем количество мин вокруг
                     if (arrField[currentIndex + element] === 9){
                         mines++;
                     }
-                    // else if ((arrField[currentIndex + element] === 0) && ((element === 1) || (element === -1) ||
-                    //     (element === fieldWidth) || (element === -fieldWidth))) {
-                    //         const buttonsElements = document.querySelectorAll(`.button[index="${currentIndex + element}"]`);
-                    //         buttonsElements.forEach(element => {
-                    //             element.setAttribute('data-value', '0');
-                    //         });
-                    // }
                 });
                 mines !== 0 ? this.textContent = mines.toString(): this.textContent = '';
                 this.setAttribute('data-value', mines.toString());
+                //сюда нужно вставить обсчет пустых клеток рядом
+                if (arrField[currentIndex] === 0) {
+                    console.log(arrField[currentIndex]);
+                    checkEmptyCell(currentIndex);
+                }
             }
         }
     });
@@ -88,3 +97,44 @@ arrField.forEach((_, index) => {
             this.getAttribute('data-value'.toString()) : this.textContent = '⛳️';
     });
 });
+
+function checkEmptyCell(index: number): void {
+    let neighborI: number[] = [];
+    switch (true){
+        case (index === 0): //левый верхний угол
+            neighborI = [1, fieldWidth];
+            break;
+        case (index === fieldWidth-1): //правый верхний угол
+            neighborI = [-1, fieldWidth];
+            break;
+        case (index < fieldWidth): //верхняя строка
+            neighborI = [-1, 1, fieldWidth];
+            break;
+        case (index === fieldSize-fieldWidth): //левый нижний угол
+            neighborI = [1, -fieldWidth];
+            break;
+        case (index === fieldSize-1): //правый нижний угол
+            neighborI = [-1, -fieldWidth];
+            break;
+        case (index > fieldSize - fieldWidth): //нижняя строка
+            neighborI = [-1, 1, -fieldWidth];
+            break;
+        case ((index) % fieldWidth === 0): //левый столбец
+            neighborI = [-fieldWidth, 1, fieldWidth]
+            break;
+        case ((index + 1) % fieldWidth === 0): //правый столбец
+            neighborI = [-fieldWidth, -1, fieldWidth];
+            break;
+        default: //обычные клетки 4 соседа
+            neighborI = [-fieldWidth, -1, 1, fieldWidth];
+            //console.log(currentIndex);
+    }
+    const cell = document.querySelector(`button[index="${index}"]`) as HTMLButtonElement;
+    cell.setAttribute('data-value', "0");
+    console.log(cell);
+    neighborI.forEach(element => {
+        if (arrField[index + element] === 0 && cell.getAttribute('data-value') !== "0" ){
+            checkEmptyCell(index + element);
+        }
+    });
+}
