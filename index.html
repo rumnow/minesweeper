@@ -7,9 +7,32 @@
     <title>Minesweeper</title>
 </head>
 <body>
+    <div class="game-info-container">
+        <div class="game-info">
+            <!-- Имя игрока 
+            <div class="info-item">
+                <label for="playerName">Игрок:</label>
+                <input type="text" id="playerName" placeholder="Введите имя">
+            </div> -->
+
+            <!-- Время игры -->
+            <div class="info-item">
+                <label for="gameTime">Время:</label>
+                <input type="text" id="gameTime" disabled>
+            </div>
+
+            <!-- Количество оставшихся мин -->
+            <div class="info-item">
+                <label for="minesLeft">Мины:</label>
+                <input type="text" id="minesLeft" disabled>
+            </div>
+        </div>
+    </div>
     <div class="field">
-        <input type="text" id="display" disabled>
-        <div class="buttons"></div>
+        <div class="buttons">
+            <!-- Кнопки игрового поля здесь -->
+        </div>
     </div>
     <script src="dist/minesweeper.js"></script>
 </body>
+
