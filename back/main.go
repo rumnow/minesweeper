@@ -18,7 +18,7 @@ type mineField struct{
 	size int
 	difficult byte //0, 2, 4
 	userName string
-	timeGame int
+	gameDuration int
 	cells []byte
 	gameStartTime time.Time
 	currentStatus byte
@@ -42,7 +42,7 @@ func (mf *mineField) printToString() string {
 	result := []string{}
 	for i := 0; i < width; i++ {
 		for u := 0; u < width; u++ {
-			result = append(result, fmt.Sprintf("%v ", mf.cells[(i*10)+u]))
+			result = append(result, fmt.Sprintf("%v ", mf.cells[(i*width)+u]))
 		}
 		result = append(result, "\n")
 	}
@@ -60,11 +60,10 @@ func newMineField(size int, difficult byte) mineField {
 	fillMines(mineCount, &arrField)
 	fillCell(&arrField)
 	return mineField{
-		//guid: uuid.NewString(),
 		size: size,
 		difficult: difficult,
 		userName: "",
-		timeGame: 0,
+		gameDuration: 0,
 		cells: arrField,
 		gameStartTime: time.Now(),
 		currentStatus: 0,
@@ -136,7 +135,9 @@ func main() {
 	// -- Handlers
 	http.HandleFunc("/newgame", func(w http.ResponseWriter, r *http.Request) {
 		difficult, _ := strconv.Atoi(r.URL.Query().Get("difficult"))
-		field2 := newMineField(100, byte(difficult))
+		size, _ := strconv.Atoi(r.URL.Query().Get("size"))
+		//TODO Добавить проверку типов полей
+		field2 := newMineField(size * size, byte(difficult))
 		guid := uuid.NewString()
 		allGames[guid] = field2
 		fmt.Fprint(w, field2.printToString())
@@ -153,7 +154,7 @@ func main() {
 			}
 		} else {
 			//return Game not found
-			
+
 		}
 	})
 
