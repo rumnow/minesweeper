@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -13,15 +14,28 @@ import (
 	"github.com/google/uuid"
 )
 
-type mineField struct{
+type mineField struct {
 	//guid string
 	size int
+	mines int
 	difficult byte //0, 2, 4
 	userName string
 	gameDuration int
 	cells []byte
 	gameStartTime time.Time
 	currentStatus byte
+}
+
+type newGame struct {
+	Size int `json:"size"`
+	Mines int `json:"mines"`
+	Guid string `json:"guid"`
+}
+
+type turn struct {
+	GameStatus int `json:"gamestatus"`
+	Index int `json:"indexfield"`
+	Mines int `json:"mines"`
 }
 
 var allGames map[string]mineField
@@ -61,6 +75,7 @@ func newMineField(size int, difficult byte) mineField {
 	fillCell(&arrField)
 	return mineField{
 		size: size,
+		mines: mineCount,
 		difficult: difficult,
 		userName: "",
 		gameDuration: 0,
@@ -94,23 +109,24 @@ func fillCell(arrField *[]byte) {
 		width := int(math.Sqrt(float64(size)))
 		result := 0
 		var arrNeib []int
-		if index == 0 { //LT corner
+		switch {
+		case index == 0:  //LT corner
 			arrNeib = []int{1, width, width + 1}
-		} else if index == width-1 { //RT corner
+		case index == width - 1:  //RT corner
 			arrNeib = []int{-1, width, width - 1}
-		} else if index == size - width { //LD corner
+		case index == size - width:  //LD corner
 			arrNeib =[]int{1, -width, -width + 1}
-		} else if index == size - 1 { //RD corner
+		case index == size - 1: //RD corner
 			arrNeib = []int{-1, -width, -width - 1}
-		} else if index < width { //Top line, except corners
+		case index < width: //Top line, except corners
 			arrNeib = []int{-1, 1, width, width - 1, width + 1}
-		} else if index > size - width { //Lower line, except corners
+		case index > size - width: //Lower line, except corners
 			arrNeib = []int{-1, 1, -width, -width - 1, -width + 1}
-		} else if index%width == 0 { //Left row, except corners
+		case index%width == 0:  //Left row, except corners
 			arrNeib = []int{1, width, -width, -width + 1, width + 1}
-		} else if index%width == width - 1 { //Right row, except corners
+		case index%width == width - 1: //Right row, except corners
 			arrNeib = []int{-1, -width, width, -width - 1, width - 1}
-		}else { //default
+		default:
 			arrNeib = []int{-1, 1, -width, -width - 1, -width + 1, width, width - 1, width + 1}
 		}
 		for _, i := range arrNeib {
@@ -127,37 +143,41 @@ func main() {
 	port := 8080
 	addr := fmt.Sprintf(":%v", port)
 	fmt.Println("......")
-	// field1 := newMineField(100, 0)
-	// fmt.Println(field1.getCellValue(0))
-	// fmt.Println(field1.guid)
-	// fmt.Println("......")
 
 	// -- Handlers
-	http.HandleFunc("/newgame", func(w http.ResponseWriter, r *http.Request) {
-		difficult, _ := strconv.Atoi(r.URL.Query().Get("difficult"))
-		size, _ := strconv.Atoi(r.URL.Query().Get("size"))
-		//TODO Добавить проверку типов полей
-		field2 := newMineField(size * size, byte(difficult))
-		guid := uuid.NewString()
-		allGames[guid] = field2
-		fmt.Fprint(w, field2.printToString())
-		log.Printf("New game %s started in %s!\n", guid, field2.gameStartTime)
-		log.Println("---")
-		log.Println(allGames)
-	})
-	http.HandleFunc("/turn", func(w http.ResponseWriter, r *http.Request) {
-		guid := r.URL.Query().Get("guid")
-		field, _ := strconv.Atoi(r.URL.Query().Get("field"))
-		if _, ok := allGames[guid]; ok {
-			if field < len(allGames[guid].cells) {
-				fmt.Fprint(w, allGames[guid].cells[field])
-			}
-		} else {
-			//return Game not found
-
-		}
-	})
+	http.HandleFunc("/newgame", handleNewGame)
+	http.HandleFunc("/turn", handleTurn)
 
 	fmt.Printf("Starting server on %v port...\n", port)
 	http.ListenAndServe(addr, nil)
+}
+
+func handleNewGame(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	difficult, _ := strconv.Atoi(r.URL.Query().Get("difficulty"))
+	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
+	//TODO Добавить проверку типов полей
+	field2 := newMineField(size * size, byte(difficult))
+	guid := uuid.NewString()
+	allGames[guid] = field2
+	answerNewGame, _ := json.Marshal(&newGame{size*size, field2.mines, guid})
+	w.WriteHeader(200)
+	w.Write(answerNewGame)
+	log.Printf("New game %s started in %s!\n", guid, field2.gameStartTime)
+}
+
+func handleTurn(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	guid := r.URL.Query().Get("guid")
+	field, _ := strconv.Atoi(r.URL.Query().Get("field"))
+	if _, ok := allGames[guid]; ok {
+		if field < len(allGames[guid].cells) {
+			answerTurn, _ := json.Marshal(&turn{0, field, int(allGames[guid].cells[field])})
+			w.Write(answerTurn)
+			log.Println(guid, field, int(allGames[guid].cells[field]))
+		}
+	} else {
+		//return Game not found
+		w.WriteHeader(http.StatusNotFound)
+	}
 }

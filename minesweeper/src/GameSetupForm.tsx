@@ -5,8 +5,8 @@ interface GameSetupFormProps {
 }
 
 const GameSetupForm: React.FC<GameSetupFormProps> = ({ onCreateGame }) => {
-  const [size, setSize] = useState<number>(8);
-  const [difficulty, setDifficulty] = useState<string>('Easy');
+  const [size, setSize] = useState<number>(10);
+  const [difficulty, setDifficulty] = useState<string>('0');
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -30,9 +30,10 @@ const GameSetupForm: React.FC<GameSetupFormProps> = ({ onCreateGame }) => {
       <label>
         Уровень сложности:
         <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-          <option value="Easy">Легкий</option>
-          <option value="Medium">Средний</option>
-          <option value="Hard">Тяжелый</option>
+          <option value="0">Easy</option>
+          <option value="2">Medium</option>
+          <option value="5">Hard</option>
+          <option value="9">God</option>
         </select>
       </label>
       <br />
