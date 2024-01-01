@@ -1,5 +1,5 @@
 let fieldSize: number; // = 100; //всего клеток
-let minesCount: number = 10; //всего мин
+let minesCount: number; //всего мин
 let fieldWidth: number; //ширина поля
 let arrField: number[]; //клетки с минами
 let arrChecked: boolean[]; //клетки куда уже тыкали
@@ -61,12 +61,14 @@ function startNewGame(){
     // Другая логика игры
 };
 
-function startGame(fieldSize: number, minesCount: number, uuid: string): void {
-    console.log(`Игра начата с размером поля ${fieldSize} и сложностью ${minesCount}`);
+function startGame(fieldS: number, minesC: number, uuid: string): void {
+    console.log(`Игра начата с размером поля ${fieldS} и сложностью ${minesCount}`);
     // Здесь должна быть логика для старта игры
+    fieldSize = fieldS;
     arrField = new Array(fieldSize).fill(0);
     arrChecked = new Array(fieldSize).fill(false);
-    minesLeft = minesCount;
+    minesCount = minesC;
+    minesLeft = minesC;
     minesLeftInput.value = minesLeft.toString();
 
     //создаем кнопки
@@ -174,10 +176,10 @@ async function getAllMines(uuid: string): Promise<number[]> {
 }
 ///////////
 
-
-
 //win?
 function win(): void {
+    console.log(fieldSize)
+    console.log(minesCount + arrChecked.filter(value => value === true).length)
     if (fieldSize === minesCount + arrChecked.filter(value => value === true).length) {
         setTimeout(() => {
             alert("You win!");

@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 var fieldSize; // = 100; //всего клеток
-var minesCount = 10; //всего мин
+var minesCount; //всего мин
 var fieldWidth; //ширина поля
 var arrField; //клетки с минами
 var arrChecked; //клетки куда уже тыкали
@@ -101,12 +101,14 @@ function startNewGame() {
     // Другая логика игры
 }
 ;
-function startGame(fieldSize, minesCount, uuid) {
-    console.log("\u0418\u0433\u0440\u0430 \u043D\u0430\u0447\u0430\u0442\u0430 \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\u043E\u043C \u043F\u043E\u043B\u044F ".concat(fieldSize, " \u0438 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u044C\u044E ").concat(minesCount));
+function startGame(fieldS, minesC, uuid) {
+    console.log("\u0418\u0433\u0440\u0430 \u043D\u0430\u0447\u0430\u0442\u0430 \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\u043E\u043C \u043F\u043E\u043B\u044F ".concat(fieldS, " \u0438 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u044C\u044E ").concat(minesCount));
     // Здесь должна быть логика для старта игры
+    fieldSize = fieldS;
     arrField = new Array(fieldSize).fill(0);
     arrChecked = new Array(fieldSize).fill(false);
-    minesLeft = minesCount;
+    minesCount = minesC;
+    minesLeft = minesC;
     minesLeftInput.value = minesLeft.toString();
     //создаем кнопки
     buttonsContainer === null || buttonsContainer === void 0 ? void 0 : buttonsContainer.setAttribute('style', "grid-template-columns: repeat(".concat(fieldWidth, ", 1fr);"));
@@ -251,6 +253,8 @@ function getAllMines(uuid) {
 ///////////
 //win?
 function win() {
+    console.log(fieldSize);
+    console.log(minesCount + arrChecked.filter(function (value) { return value === true; }).length);
     if (fieldSize === minesCount + arrChecked.filter(function (value) { return value === true; }).length) {
         setTimeout(function () {
             alert("You win!");
