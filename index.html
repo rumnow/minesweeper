@@ -7,32 +7,55 @@
     <title>Minesweeper</title>
 </head>
 <body>
-    <div class="game-info-container">
-        <div class="game-info">
-            <!-- Имя игрока 
-            <div class="info-item">
-                <label for="playerName">Игрок:</label>
-                <input type="text" id="playerName" placeholder="Введите имя">
-            </div> -->
+    <div id="startWindow" style="display: block;">
+        <!-- Элементы стартового окна -->
+        <form id="gameSettings">
+            <label for="fieldSize">Размер поля:</label>
+            <input type="range" id="fieldSize" name="fieldSize" min="7" max="15" value="11">
+            <span id="fieldSizeValue">11</span>
 
-            <!-- Время игры -->
-            <div class="info-item">
-                <label for="gameTime">Время:</label>
-                <input type="text" id="gameTime" disabled>
+            <label for="difficulty">Сложность:</label>
+            <select id="difficulty" name="difficulty">
+                <option value="easy">Легко</option>
+                <option value="medium">Средне</option>
+                <option value="hard">Сложно</option>
+                <option value="pro">Профи</option>
+            </select>
+
+            <button type="submit">Создать игру</button>
+        </form>
+    </div>
+    <div id="gameField" style="display: none;">
+        <div class="game-info-container">
+            <div class="game-info">
+                <!-- Имя игрока
+                <div class="info-item">
+                    <label for="playerName">Игрок:</label>
+                    <input type="text" id="playerName" placeholder="Введите имя">
+                </div> -->
+
+                <!-- Время игры -->
+                <div class="info-item">
+                    <label for="gameTime">Время:</label>
+                    <input type="text" id="gameTime" disabled>
+                </div>
+
+                <!-- Количество оставшихся мин -->
+                <div class="info-item">
+                    <label for="minesLeft">Мины:</label>
+                    <input type="text" id="minesLeft" disabled>
+                </div>
             </div>
-
-            <!-- Количество оставшихся мин -->
-            <div class="info-item">
-                <label for="minesLeft">Мины:</label>
-                <input type="text" id="minesLeft" disabled>
+        </div>
+        <div class="field">
+            <div class="buttons">
+                <!-- Кнопки игрового поля здесь -->
             </div>
         </div>
     </div>
-    <div class="field">
-        <div class="buttons">
-            <!-- Кнопки игрового поля здесь -->
-        </div>
+    <div id="recordWindow" style="display: none;">
+        <!-- Элементы окна рекордов -->
     </div>
-    <script src="dist/minesweeper.js"></script>
+    <script src="minesweeper.js"></script>
 </body>
 

@@ -26,18 +26,6 @@ type mineField struct {
 	currentStatus byte
 }
 
-type newGame struct {
-	Size int `json:"size"`
-	Mines int `json:"mines"`
-	Guid string `json:"guid"`
-}
-
-type turn struct {
-	GameStatus int `json:"gamestatus"`
-	Index int `json:"indexfield"`
-	Mines int `json:"mines"`
-}
-
 var allGames map[string]mineField
 
 // Print field to console
@@ -147,17 +135,33 @@ func main() {
 	// -- Handlers
 	http.HandleFunc("/newgame", handleNewGame)
 	http.HandleFunc("/turn", handleTurn)
+	http.HandleFunc("/gameover", handleGameOver)
 
 	fmt.Printf("Starting server on %v port...\n", port)
 	http.ListenAndServe(addr, nil)
 }
 
 func handleNewGame(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
-	difficult, _ := strconv.Atoi(r.URL.Query().Get("difficulty"))
+	type newGame struct {
+		Size int `json:"size"`
+		Mines int `json:"mines"`
+		Guid string `json:"guid"`
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	difficult := r.URL.Query().Get("difficulty")
 	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
 	//TODO Добавить проверку типов полей
-	field2 := newMineField(size * size, byte(difficult))
+	var field2 mineField
+	switch {
+	case difficult == "medium":
+		field2 = newMineField(size * size, byte(2))
+	case difficult == "hard":
+		field2 = newMineField(size * size, byte(4))
+	case difficult == "pro":
+		field2 = newMineField(size * size, byte(9))
+	default:
+		field2 = newMineField(size * size, byte(0))
+	}
 	guid := uuid.NewString()
 	allGames[guid] = field2
 	answerNewGame, _ := json.Marshal(&newGame{size*size, field2.mines, guid})
@@ -167,15 +171,47 @@ func handleNewGame(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleTurn(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "http://localhost:3000")
+	type turn struct {
+		GameStatus int `json:"gamestatus"`
+		Index int `json:"indexfield"`
+		Mines int `json:"mines"`
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	guid := r.URL.Query().Get("guid")
 	field, _ := strconv.Atoi(r.URL.Query().Get("field"))
-	if _, ok := allGames[guid]; ok {
-		if field < len(allGames[guid].cells) {
+	if mf, ok := allGames[guid]; ok {
+		if field < len(allGames[guid].cells) && mf.currentStatus == byte(0) {
 			answerTurn, _ := json.Marshal(&turn{0, field, int(allGames[guid].cells[field])})
 			w.Write(answerTurn)
-			log.Println(guid, field, int(allGames[guid].cells[field]))
+			//log.Println(guid, field, int(allGames[guid].cells[field]))
+		} else {
+			answerTurn, _ := json.Marshal(&turn{int(mf.currentStatus), field, 0})
+			w.Write(answerTurn)
 		}
+	} else {
+		//return Game not found
+		w.WriteHeader(http.StatusNotFound)
+	}
+}
+
+func handleGameOver(w http.ResponseWriter, r *http.Request) {
+	type allMines struct {
+		Mines []int `json:"mines"`
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	guid := r.URL.Query().Get("guid")
+	returnMines := allMines{}
+	if mf, ok := allGames[guid]; ok {
+		for i, v := range allGames[guid].cells {
+			if v == 9 {
+				returnMines.Mines = append(returnMines.Mines, i)
+			}
+		}
+		answerGameOver, _ := json.Marshal(&returnMines)
+		w.Write(answerGameOver)
+		mf.currentStatus = byte(1)
+		allGames[guid] = mf
+		log.Println(mf)
 	} else {
 		//return Game not found
 		w.WriteHeader(http.StatusNotFound)
