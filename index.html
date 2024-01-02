@@ -10,19 +10,18 @@
     <div id="startWindow" style="display: block;">
         <!-- Элементы стартового окна -->
         <form id="gameSettings">
-            <label for="fieldSize">Размер поля:</label>
+            <label for="fieldSize">Field size:</label>
             <input type="range" id="fieldSize" name="fieldSize" min="7" max="15" value="11">
             <span id="fieldSizeValue">11</span>
 
-            <label for="difficulty">Сложность:</label>
+            <label for="difficulty">Difficulty:</label>
             <select id="difficulty" name="difficulty">
-                <option value="easy">Легко</option>
-                <option value="medium">Средне</option>
-                <option value="hard">Сложно</option>
-                <option value="pro">Профи</option>
+                <option value="easy">Easy</option>
+                <option value="medium">Medium</option>
+                <option value="hard">Hard</option>
+                <option value="pro">Profi</option>
             </select>
-
-            <button type="submit">Создать игру</button>
+            <button type="submit">New game</button>
         </form>
     </div>
     <div id="gameField" style="display: none;">
@@ -36,14 +35,14 @@
 
                 <!-- Время игры -->
                 <div class="info-item">
-                    <label for="gameTime">Время:</label>
-                    <input type="text" id="gameTime" disabled>
+                    <span>Time: </span>
+                    <span id="timerDisplay">00:00</span>
                 </div>
 
                 <!-- Количество оставшихся мин -->
                 <div class="info-item">
-                    <label for="minesLeft">Мины:</label>
-                    <input type="text" id="minesLeft" disabled>
+                    <span>Mines left: </span>
+                    <span id="minesLeft"></span>
                 </div>
             </div>
         </div>
@@ -52,6 +51,9 @@
                 <!-- Кнопки игрового поля здесь -->
             </div>
         </div>
+    </div>
+    <div id="fireworkContainer" style="display: none;">
+        <!-- Firework -->
     </div>
     <div id="recordWindow" style="display: none;">
         <!-- Элементы окна рекордов -->

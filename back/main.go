@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
-	"strings"
+	//"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -28,35 +28,9 @@ type mineField struct {
 
 var allGames map[string]mineField
 
-// Print field to console
-func (mf *mineField) printToConsole(){
-	width := int(math.Sqrt(float64(mf.size)))
-	for i := 0; i < width; i++ {
-		for u := 0; u < width; u++ {
-			fmt.Printf("%v ", mf.cells[(i*10)+u])
-		}
-		fmt.Printf("\n")
-	}
-}
-// Return field to string
-func (mf *mineField) printToString() string {
-	width := int(math.Sqrt(float64(mf.size)))
-	result := []string{}
-	for i := 0; i < width; i++ {
-		for u := 0; u < width; u++ {
-			result = append(result, fmt.Sprintf("%v ", mf.cells[(i*width)+u]))
-		}
-		result = append(result, "\n")
-	}
-	return strings.Join(result, "")
-}
-// Return cell value by Index
-func (mf *mineField) getCellValue(index int) byte {
-	return mf.cells[index]
-}
 // Create new field struct
 func newMineField(size int, difficult byte) mineField {
-	mineCount := int(math.Sqrt(float64(size)) + ((float64(size) / 100) * float64(difficult)))
+	mineCount := 3 //int(math.Sqrt(float64(size)) + ((float64(size) / 100) * float64(difficult)))
 	//fmt.Println(mineCount)
 	arrField := make([]byte, size)
 	fillMines(mineCount, &arrField)

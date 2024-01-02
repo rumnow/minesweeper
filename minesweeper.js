@@ -42,8 +42,11 @@ var arrChecked; //клетки куда уже тыкали
 var minesLeft;
 var buttonsContainer = document.querySelector('.buttons');
 var playerNameInput = document.getElementById('playerName');
-var timeElapsedInput = document.getElementById('timeElapsed');
-var minesLeftInput = document.getElementById('minesLeft');
+var timeElapsedSpan = document.getElementById('timeElapsed');
+;
+var minesLeftSpan = document.getElementById('minesLeft');
+var secondsElapsed = 0;
+var timerInterval;
 //// MultyWindows APP
 // let uuid: string;
 // let difficulty: string;
@@ -102,14 +105,15 @@ function startNewGame() {
 }
 ;
 function startGame(fieldS, minesC, uuid) {
-    console.log("\u0418\u0433\u0440\u0430 \u043D\u0430\u0447\u0430\u0442\u0430 \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\u043E\u043C \u043F\u043E\u043B\u044F ".concat(fieldS, " \u0438 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u044C\u044E ").concat(minesCount));
+    console.log("\u0418\u0433\u0440\u0430 \u043D\u0430\u0447\u0430\u0442\u0430 \u0441 \u0440\u0430\u0437\u043C\u0435\u0440\u043E\u043C \u043F\u043E\u043B\u044F ".concat(fieldS, " \u0438 \u0441\u043B\u043E\u0436\u043D\u043E\u0441\u0442\u044C\u044E ").concat(minesC));
     // Здесь должна быть логика для старта игры
+    startTimer();
     fieldSize = fieldS;
     arrField = new Array(fieldSize).fill(0);
     arrChecked = new Array(fieldSize).fill(false);
     minesCount = minesC;
     minesLeft = minesC;
-    minesLeftInput.value = minesLeft.toString();
+    minesLeftSpan.textContent = minesLeft.toString();
     //создаем кнопки
     buttonsContainer === null || buttonsContainer === void 0 ? void 0 : buttonsContainer.setAttribute('style', "grid-template-columns: repeat(".concat(fieldWidth, ", 1fr);"));
     arrField.forEach(function (value, index) {
@@ -182,7 +186,7 @@ function startGame(fieldS, minesC, uuid) {
                 this.textContent = '⛳️';
                 minesLeft--;
             }
-            minesLeftInput.value = minesLeft.toString();
+            minesLeftSpan.textContent = minesLeft.toString();
             win();
         });
     });
@@ -253,14 +257,32 @@ function getAllMines(uuid) {
 ///////////
 //win?
 function win() {
-    console.log(fieldSize);
-    console.log(minesCount + arrChecked.filter(function (value) { return value === true; }).length);
     if (fieldSize === minesCount + arrChecked.filter(function (value) { return value === true; }).length) {
+        stopTimer();
         setTimeout(function () {
             alert("You win!");
-            location.reload();
+            hideElement("gameField");
+            showElement("fireworkContainer");
+            createFirework();
         }, 400);
     }
+}
+function startTimer() {
+    timerInterval = setInterval(function () {
+        secondsElapsed++;
+        updateTimerDisplay();
+    }, 1000);
+}
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+function updateTimerDisplay() {
+    var minutes = Math.floor(secondsElapsed / 60);
+    var seconds = secondsElapsed % 60;
+    var formattedTime = "".concat(minutes.toString().padStart(2, '0'), ":").concat(seconds.toString().padStart(2, '0'));
+    // Обновите элемент отображения таймера на вашей веб-странице
+    var timDisplay = document.getElementById('timerDisplay');
+    timDisplay.textContent = formattedTime;
 }
 //считаем пустые поля
 function checkEmptyCell(index, uuid) {
@@ -332,4 +354,31 @@ function checkEmptyCell(index, uuid) {
             }
         });
     });
+}
+function createFirework() {
+    console.log("Firework!");
+    var fireworkContainer = document.getElementById('fireworkContainer'); // контейнер для салюта
+    var _loop_1 = function (i) {
+        var particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = "".concat(Math.random() * 100, "%");
+        particle.style.top = "".concat(Math.random() * 100, "%");
+        particle.style.backgroundColor = getRandomColor();
+        fireworkContainer === null || fireworkContainer === void 0 ? void 0 : fireworkContainer.appendChild(particle);
+        // Удалите частицу после анимации
+        particle.addEventListener('animationend', function () {
+            particle.remove();
+        });
+    };
+    for (var i = 0; i < 50; i++) {
+        _loop_1(i);
+    }
+}
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }

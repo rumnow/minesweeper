@@ -26,30 +26,31 @@ html, body {
     justify-content: space-between;
     width: 100%; /* Информационные поля займут всю ширину */
     max-width: 600px; /* Можно задать максимальную ширину для контейнера */
-    margin-bottom: 20px; /* Отступ от игрового поля ниже */
+    margin-bottom: 5px; /* Отступ от игрового поля ниже */
 }
 
 .info-item {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    margin-right: 10px; /* Добавим отступ справа для каждого элемента, кроме последнего */
-}
-
-.info-item:last-child {
-    margin-right: 0; /* У последнего элемента отступ справа не нужен */
+    margin-left: 10px;
+    margin-right: 30px; /* Добавим отступ справа для каждого элемента, кроме последнего */
 }
 
 .info-item label {
     margin-bottom: 5px;
+    margin-right: 10px;
 }
 
 .info-item input {
     text-align: center;
+    border-style: hidden;
+    font-size: medium;
     /* Другие стили для input, если нужно */
 }
 
 .field {
+    position: relative;
     display: flex;
     justify-content: center; /* Центрируем игровое поле */
     border: 1px solid #ccc;
@@ -66,27 +67,115 @@ html, body {
 }
 
 button {
-    padding: 3px; /* Изменим на ваше усмотрение */
+    padding: 3px;
     height: 40px;
     width: 40px;
     text-align: center;
     font-size: 24px;
-    border: 0px solid #ccc;
+    border: 0px solid rgb(232, 232, 232);
     border-radius: 3px;
     cursor: pointer;
     transition: background-color 0.5s; /* Уменьшим время анимации для лучшей отзывчивости */
 }
 
 button:hover {
-    background-color: #e6e6e6; /* Более светлый цвет для эффекта при наведении */
+    background-color: #e3e3e3; /* Более светлый цвет для эффекта при наведении */
 }
 
 button[checked="1"] {
-    background-color: #a09f9f;
+    background-color: #8f8f8f;
     color: white;
 }
 
 button[data-value="💣"] {
     background-color: #dc3545;
     color: white;
+}
+
+#startWindow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px solid #ddd; /* Легкая рамка вокруг окна */
+    border-radius: 10px; /* Скругленные углы */
+    background-color: #f9f9f9; /* Светлый фон */
+    margin: auto;
+    width: 50%;
+    max-width: 400px; /* Максимальная ширина, чтобы на больших экранах выглядело хорошо */
+}
+
+#gameSettings {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Расстояние между элементами формы */
+}
+
+#gameSettings label {
+    margin-bottom: 5px;
+    font-weight: bold; /* Жирный шрифт для меток */
+}
+
+#gameSettings input[type=range],
+#gameSettings select {
+    width: 85%; /* Ширина ползунка и выпадающего списка */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: large;
+}
+
+#gameSettings button {
+    padding: 5px 10px; /* Внутренние отступы по горизонтали и вертикали */
+    line-height: 1.5; /* Высота строки для вертикального выравнивания текста */
+    text-align: center; /* Горизонтальное выравнивание текста по центру */
+
+    /* Остальные стили кнопки */
+    min-width: 120px;
+    border: none;
+    border-radius: 5px;
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+    overflow: visible;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#gameSettings button:hover {
+    background-color: #45a049;
+}
+
+#fieldSizeValue {
+    margin-top: 10px;
+}
+
+@keyframes explode {
+    from {
+        opacity: 1;
+        transform: scale(0.5);
+    }
+    to {
+        opacity: 0;
+        transform: scale(1);
+    }
+}
+
+.particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: explode 2s ease-out forwards;
+}
+
+#fireworkContainer {
+    pointer-events: none;
+    position: absolute; /* Абсолютное позиционирование */
+    top: 0; /* Положение вверху родительского контейнера */
+    left: 0; /* Положение слева от родительского контейнера */
+    width: 100%; /* Ширина соответствует родительскому контейнеру */
+    height: 100%; /* Высота соответствует родительскому контейнеру */
+    z-index: 10; /* Убедитесь, что fireworkContainer находится поверх других элементов */
 }

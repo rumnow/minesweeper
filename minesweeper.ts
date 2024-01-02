@@ -6,9 +6,10 @@ let arrChecked: boolean[]; //клетки куда уже тыкали
 let minesLeft: number;
 const buttonsContainer = document.querySelector('.buttons');
 const playerNameInput = document.getElementById('playerName');
-const timeElapsedInput = document.getElementById('timeElapsed');
-const minesLeftInput: HTMLInputElement = document.getElementById('minesLeft') as HTMLInputElement;
-
+const timeElapsedSpan = document.getElementById('timeElapsed') as HTMLSpanElement;;
+const minesLeftSpan = document.getElementById('minesLeft') as HTMLSpanElement;
+let secondsElapsed = 0;
+let timerInterval: NodeJS.Timeout;
 
 //// MultyWindows APP
 // let uuid: string;
@@ -62,14 +63,15 @@ function startNewGame(){
 };
 
 function startGame(fieldS: number, minesC: number, uuid: string): void {
-    console.log(`Игра начата с размером поля ${fieldS} и сложностью ${minesCount}`);
+    console.log(`Игра начата с размером поля ${fieldS} и сложностью ${minesC}`);
     // Здесь должна быть логика для старта игры
+    startTimer();
     fieldSize = fieldS;
     arrField = new Array(fieldSize).fill(0);
     arrChecked = new Array(fieldSize).fill(false);
     minesCount = minesC;
     minesLeft = minesC;
-    minesLeftInput.value = minesLeft.toString();
+    minesLeftSpan.textContent = minesLeft.toString()
 
     //создаем кнопки
     buttonsContainer?.setAttribute('style', `grid-template-columns: repeat(${fieldWidth}, 1fr);`);
@@ -126,7 +128,7 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
                 this.textContent = '⛳️';
                 minesLeft--;
             }
-            minesLeftInput.value = minesLeft.toString();
+            minesLeftSpan.textContent = minesLeft.toString();
             win();
         });
     });
@@ -178,14 +180,37 @@ async function getAllMines(uuid: string): Promise<number[]> {
 
 //win?
 function win(): void {
-    console.log(fieldSize)
-    console.log(minesCount + arrChecked.filter(value => value === true).length)
     if (fieldSize === minesCount + arrChecked.filter(value => value === true).length) {
+        stopTimer();
         setTimeout(() => {
             alert("You win!");
-            location.reload();
+            hideElement("gameField")
+            showElement("fireworkContainer")
+            createFirework();
         }, 400);
+
     }
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        secondsElapsed++;
+        updateTimerDisplay();
+    }, 1000);
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
+}
+
+function updateTimerDisplay() {
+    const minutes = Math.floor(secondsElapsed / 60);
+    const seconds = secondsElapsed % 60;
+
+    const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    // Обновите элемент отображения таймера на вашей веб-странице
+    const timDisplay = document.getElementById('timerDisplay') as HTMLDataElement;
+    timDisplay.textContent = formattedTime;
 }
 
 //считаем пустые поля
@@ -239,4 +264,31 @@ async function checkEmptyCell(index: number, uuid: string) {
             cell.setAttribute('checked', '1');
         }
     };
+}
+
+function createFirework() {
+    console.log("Firework!")
+    const fireworkContainer = document.getElementById('fireworkContainer'); // контейнер для салюта
+    for (let i = 0; i < 50; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        particle.style.left = `${Math.random() * 100}%`;
+        particle.style.top = `${Math.random() * 100}%`;
+        particle.style.backgroundColor = getRandomColor();
+        fireworkContainer?.appendChild(particle);
+
+        // Удалите частицу после анимации
+        particle.addEventListener('animationend', () => {
+            particle.remove();
+        });
+    }
+}
+
+function getRandomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
