@@ -9,6 +9,7 @@ env:
   TEST_TAG: rumrum/minesweeper:test
   LATEST_TAG: rumrum/minesweeper:latest
   PATH_TAG: rumrum/minesweeper
+  COMMIT_HASH: ${{ github.sha }}
 
 jobs:
   docker:
@@ -45,10 +46,8 @@ jobs:
       - name: Build Docker image
         run: |
           cd back
-          docker build -t ${{ env.LATEST_TAG }} .
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.LATEST_TAG }})
-          docker tag ${{ env.LATEST_TAG }} ${{ env.PATH_TAG }}:sha-${IMAGE_DIGEST}
-          docker push ${{ env.PATH_TAG }}:sha-${IMAGE_DIGEST}
+          docker build -t ${{ env.COMMIT_HASH }} .
+          docker push ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
         env:
           DOCKER_BUILDKIT: 1
 
@@ -58,7 +57,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} <<EOF
-            docker pull ${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}
+            docker pull ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
             docker stop minesweeper || true
-            docker run -d -p 8080:8080 --name minesweeper ${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}
+            docker run -d -p 8080:8080 --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
           EOF
