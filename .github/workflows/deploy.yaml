@@ -47,8 +47,8 @@ jobs:
           cd back
           docker build -t ${{ env.LATEST_TAG }} .
           IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.LATEST_TAG }})
-          docker tag ${{ env.LATEST_TAG }} ${{ env.PATH_TAG }}:sha-${{ env.IMAGE_DIGEST }}
-          docker push ${{ env.PATH_TAG }}:sha-${{ env.IMAGE_DIGEST }}
+          docker tag ${{ env.LATEST_TAG }} ${{ env.PATH_TAG }}:sha-${IMAGE_DIGEST}
+          docker push ${{ env.PATH_TAG }}:sha-${IMAGE_DIGEST}
         env:
           DOCKER_BUILDKIT: 1
 
