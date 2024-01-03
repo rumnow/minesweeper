@@ -8,4 +8,4 @@ go 1.21.4
 // 	google.golang.org/protobuf v1.31.0 // indirect
 // )
 
-require github.com/google/uuid v1.5.0 // indirect
+require github.com/google/uuid v1.5.0
