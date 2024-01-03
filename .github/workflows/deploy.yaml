@@ -7,6 +7,7 @@ on:
 
 env:
   TEST_TAG: rumrum/minesweeper:test
+  LATEST_TAG: rumrum/minesweeper:latest
   PATH_TAG: rumrum/minesweeper
 
 jobs:
@@ -47,12 +48,12 @@ jobs:
           context: back
           platforms: linux/amd64,linux/arm64
           push: false
-          tags: ${{ env.PATH_TAG }}:latest
+          tags: ${{ env.LATEST_TAG }}
 
       - name: Get Docker image digest
         id: get_image_digest
         run: |
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.PATH_TAG }}:latest)
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.LATEST_TAG }})
           echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
 
       - name: Push Docker image with digest tag
