@@ -58,5 +58,6 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} -p18022 <<EOF
             sudo docker pull ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
             sudo docker stop minesweeper || true
-            sudo docker run -d -p 8080:8080 --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
+            sudo docker run -d -p 8080:8080 --network jj_network --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
           EOF
+
