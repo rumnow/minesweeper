@@ -46,7 +46,7 @@ jobs:
       - name: Build Docker image
         run: |
           cd back
-          docker build -t ${{ env.COMMIT_HASH }} .
+          docker build -t ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }} .
           docker push ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
         env:
           DOCKER_BUILDKIT: 1
