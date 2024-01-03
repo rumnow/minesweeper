@@ -261,9 +261,10 @@ function win() {
         stopTimer();
         setTimeout(function () {
             alert("You win!");
-            hideElement("gameField");
-            showElement("fireworkContainer");
-            createFirework();
+            location.reload();
+            // hideElement("gameField")
+            // showElement("fireworkContainer")
+            // createFirework();
         }, 400);
     }
 }

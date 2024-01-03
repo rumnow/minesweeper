@@ -30,7 +30,7 @@ var allGames map[string]mineField
 
 // Create new field struct
 func newMineField(size int, difficult byte) mineField {
-	mineCount := 3 //int(math.Sqrt(float64(size)) + ((float64(size) / 100) * float64(difficult)))
+	mineCount := int(math.Sqrt(float64(size)) + ((float64(size) / 100) * float64(difficult)))
 	//fmt.Println(mineCount)
 	arrField := make([]byte, size)
 	fillMines(mineCount, &arrField)
@@ -126,8 +126,8 @@ func handleNewGame(w http.ResponseWriter, r *http.Request) {
 	difficult := r.URL.Query().Get("difficulty")
 	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
 	//TODO Добавить проверку типов полей
-	log.Println(r.URL)
-	log.Println("Get params difficulty:", difficult,"size:", size)
+	// log.Println(r.URL)
+	// log.Println("Get params difficulty:", difficult,"size:", size)
 	var field2 mineField
 	switch {
 	case difficult == "medium":

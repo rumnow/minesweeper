@@ -61,3 +61,33 @@ jobs:
             sudo docker run -d --network jj-network --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
           EOF
 
+      - uses: actions/checkout@v4
+      - name: copy nginx config
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_SERVER_IP }}
+          username: ${{ secrets.USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 18022
+          source: "nginx/ms.justmy.site.conf"
+          target: /opt/jj-nginx/conf.d
+
+      - uses: actions/checkout@v4
+      - name: copy frontend
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_SERVER_IP }}
+          username: ${{ secrets.USER_NAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 18022
+          source: "minesweeper.js,styles.css,index.html"
+          target: /opt/jj-nginx/conf.d/minesweeper
+
+      - name: Deploy frontend
+        run: |
+          ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} -p18022 <<EOF
+            sudo docker exec -t jj-nginx nginx -s reload
+          EOF
+
+      - name: cleanup
+        run: rm -rf id_rsa

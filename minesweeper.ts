@@ -184,9 +184,10 @@ function win(): void {
         stopTimer();
         setTimeout(() => {
             alert("You win!");
-            hideElement("gameField")
-            showElement("fireworkContainer")
-            createFirework();
+            location.reload();
+            // hideElement("gameField")
+            // showElement("fireworkContainer")
+            // createFirework();
         }, 400);
 
     }
