@@ -7,7 +7,7 @@ on:
 
 env:
   TEST_TAG: rumrum/minesweeper:test
-  LATEST_TAG: rumrum/minesweeper:latest
+  PATH_TAG: rumrum/minesweeper
 
 jobs:
   docker:
@@ -22,25 +22,39 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
       - name: Build and export to Docker
         uses: docker/build-push-action@v5
         with:
           context: back
           load: true
           tags: ${{ env.TEST_TAG }}
+
       - name: Test
         run: |
           docker run -d -p 8080:8080 ${{ env.TEST_TAG }}
           sleep 5
           nc -zv 127.0.0.1 8080
+
       - name: Stop and Clean Up
         run: |
           docker stop $(docker ps -q)
           docker rm $(docker ps -aq)
+
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: back
           platforms: linux/amd64,linux/arm64
-          push: true
-          tags: ${{ env.LATEST_TAG }}
+          push: false
+          tags: ${{ env.PATH_TAG }}:latest
+
+      - name: Get Docker image digest
+        id: get_image_digest
+        run: |
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.PATH_TAG }}:latest)
+          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
+
+      - name: Push Docker image with digest tag
+        run: |
+          docker push "${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}"
