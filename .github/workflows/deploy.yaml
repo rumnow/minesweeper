@@ -42,25 +42,15 @@ jobs:
           docker stop $(docker ps -q)
           docker rm $(docker ps -aq)
 
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: back
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ${{ env.LATEST_TAG }}
-            type=sha
-
-      - name: Get Docker image digest
-        id: get_image_digest
+      - name: Build Docker image
         run: |
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.LATEST_TAG }})
-          echo "IMAGE_DIGEST=$IMAGE_DIGEST" >> $GITHUB_ENV
-
-      - name: Push Docker image with digest tag
-        run: |
-          docker push "${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}"
+          cd back
+          docker build -t LATEST_TAG .
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' LATEST_TAG)
+          docker tag LATEST_TAG PATH_TAG:sha-${IMAGE_DIGEST}
+          docker push PATH_TAG:sha-${IMAGE_DIGEST}
+        env:
+          DOCKER_BUILDKIT: 1
 
       - name: Deploy new Docker image on the target server
         run: |
