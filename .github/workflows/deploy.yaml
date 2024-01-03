@@ -30,7 +30,13 @@ jobs:
           tags: ${{ env.TEST_TAG }}
       - name: Test
         run: |
-          docker run --rm ${{ env.TEST_TAG }}
+          docker run -d -p 8080:8080 ${{ env.TEST_TAG }}
+          sleep 5
+          nc -zv 127.0.0.1 8080
+      - name: Stop and Clean Up
+        run: |
+          docker stop $(docker ps -q)
+          docker rm $(docker ps -aq)
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
