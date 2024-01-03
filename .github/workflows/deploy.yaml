@@ -45,10 +45,10 @@ jobs:
       - name: Build Docker image
         run: |
           cd back
-          docker build -t LATEST_TAG .
-          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' LATEST_TAG)
-          docker tag LATEST_TAG PATH_TAG:sha-${IMAGE_DIGEST}
-          docker push PATH_TAG:sha-${IMAGE_DIGEST}
+          docker build -t ${{ env.LATEST_TAG }} .
+          IMAGE_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.LATEST_TAG }})
+          docker tag ${{ env.LATEST_TAG }} ${{ env.PATH_TAG }}:sha-${{ env.IMAGE_DIGEST }}
+          docker push ${{ env.PATH_TAG }}:sha-${{ env.IMAGE_DIGEST }}
         env:
           DOCKER_BUILDKIT: 1
 
