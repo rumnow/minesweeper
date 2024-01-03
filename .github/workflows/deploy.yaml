@@ -48,7 +48,9 @@ jobs:
           context: back
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ env.LATEST_TAG }}
+          tags: |
+            ${{ env.LATEST_TAG }}
+            type=sha
 
       - name: Get Docker image digest
         id: get_image_digest
