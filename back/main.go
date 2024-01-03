@@ -48,7 +48,7 @@ func newMineField(size int, difficult byte) mineField {
 }
 // Fill field of mines
 func fillMines(count int, arrField *[]byte) {
-	log.Println("Count:", count, "array:", &arrField)
+	log.Println("Count:", count, "array:", *arrField)
 	if count == 0 {
 		return
 	}
