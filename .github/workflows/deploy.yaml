@@ -66,7 +66,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} <<EOF
-            docker pull user/app:${{ env.IMAGE_DIGEST }}
-            docker stop your_container_name || true
-            docker run -d -p 8080:8080 --name your_container_name user/app:${{ env.IMAGE_DIGEST }}
+            docker pull ${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}
+            docker stop minesweeper || true
+            docker run -d -p 8080:8080 --name minesweeper ${{ env.PATH_TAG }}:${{ env.IMAGE_DIGEST }}
           EOF
