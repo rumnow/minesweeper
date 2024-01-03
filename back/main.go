@@ -48,7 +48,7 @@ func newMineField(size int, difficult byte) mineField {
 }
 // Fill field of mines
 func fillMines(count int, arrField *[]byte) {
-	log.Println("Count:", count, "array:", *arrField)
+	//log.Println("Count:", count, "array:", *arrField)
 	if count == 0 {
 		return
 	}
@@ -126,6 +126,7 @@ func handleNewGame(w http.ResponseWriter, r *http.Request) {
 	difficult := r.URL.Query().Get("difficulty")
 	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
 	//TODO Добавить проверку типов полей
+	log.Println(r.URL)
 	log.Println("Get params difficulty:", difficult,"size:", size)
 	var field2 mineField
 	switch {
