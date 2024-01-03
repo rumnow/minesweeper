@@ -55,7 +55,7 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
           chmod 600 id_rsa
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} <<EOF
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} -p18022 <<EOF
             docker pull ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
             docker stop minesweeper || true
             docker run -d -p 8080:8080 --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
