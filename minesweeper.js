@@ -79,7 +79,7 @@ function startNewGame() {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, fetch("http://localhost:8080/newgame?difficulty=".concat(difficulty, "&size=").concat(size))];
+                        return [4 /*yield*/, fetch("http://ms.justmy.site/newgame?difficulty=".concat(difficulty, "&size=").concat(size))];
                     case 1:
                         response = _a.sent();
                         if (!response.ok) {
@@ -201,7 +201,7 @@ function getMines(index, uuid) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, fetch("http://localhost:8080/turn?guid=".concat(uuid, "&field=").concat(index))];
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/turn?guid=".concat(uuid, "&field=").concat(index))];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {
@@ -231,7 +231,7 @@ function getAllMines(uuid) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, fetch("http://localhost:8080/gameover?guid=".concat(uuid))];
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/gameover?guid=".concat(uuid))];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {

@@ -45,7 +45,7 @@ function startNewGame(){
         fieldWidth = parseInt(fieldSizeSlider.value)
         const createGame = async (size: number, difficulty: string) => {
             try {
-                const response = await fetch(`http://localhost:8080/newgame?difficulty=${difficulty}&size=${size}`);
+                const response = await fetch(`http://ms.justmy.site/newgame?difficulty=${difficulty}&size=${size}`);
                 if (!response.ok) {
                     throw new Error('Ошибка при запросе к серверу');
                 }
@@ -141,7 +141,7 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
 async function getMines(index: number, uuid: string): Promise<number> {
     let mines: number;
     try {
-        const response = await fetch(`http://localhost:8080/turn?guid=${uuid}&field=${index}`);
+        const response = await fetch(`http://ms.justmy.site/turn?guid=${uuid}&field=${index}`);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }
@@ -161,7 +161,7 @@ async function getMines(index: number, uuid: string): Promise<number> {
 async function getAllMines(uuid: string): Promise<number[]> {
     let mines: number[];
     try {
-        const response = await fetch(`http://localhost:8080/gameover?guid=${uuid}`);
+        const response = await fetch(`http://ms.justmy.site/gameover?guid=${uuid}`);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }

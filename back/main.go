@@ -8,6 +8,8 @@ import (
 	"math/rand"
 	"net/http"
 	"strconv"
+	"sync"
+
 	//"strings"
 	"time"
 
@@ -22,17 +24,28 @@ type mineField struct {
 	userName string
 	gameDuration int
 	cells []byte
-	gameStartTime time.Time
-	currentStatus byte
+	chrono []turnsChrono
+	currentStatus byte //5 new game; 0 game starting; 1 over; 2 win
+}
+
+func (mf *mineField) addChrono(tC turnsChrono) {
+	mf.chrono = append(mf.chrono, tC)
+}
+
+type turnsChrono struct {
+	cellIndex int
+	turnTime time.Time
 }
 
 var allGames map[string]mineField
+var mutex sync.Mutex // 1 mutex for all 8-(
 
 // Create new field struct
 func newMineField(size int, difficult byte) mineField {
 	mineCount := int(math.Sqrt(float64(size)) + ((float64(size) / 100) * float64(difficult)))
 	//fmt.Println(mineCount)
 	arrField := make([]byte, size)
+	zeroChrono := make([]turnsChrono, 0)
 	fillMines(mineCount, &arrField)
 	fillCell(&arrField)
 	return mineField{
@@ -42,8 +55,8 @@ func newMineField(size int, difficult byte) mineField {
 		userName: "",
 		gameDuration: 0,
 		cells: arrField,
-		gameStartTime: time.Now(),
-		currentStatus: 0,
+		chrono: zeroChrono,
+		currentStatus: 5,
 	}
 }
 // Fill field of mines
@@ -103,7 +116,7 @@ func fillCell(arrField *[]byte) {
 
 func main() {
 	allGames = make(map[string]mineField)
-	port := 8080
+	port := 80
 	addr := fmt.Sprintf(":%v", port)
 	fmt.Println("......")
 
@@ -126,8 +139,6 @@ func handleNewGame(w http.ResponseWriter, r *http.Request) {
 	difficult := r.URL.Query().Get("difficulty")
 	size, _ := strconv.Atoi(r.URL.Query().Get("size"))
 	//TODO Добавить проверку типов полей
-	// log.Println(r.URL)
-	// log.Println("Get params difficulty:", difficult,"size:", size)
 	var field2 mineField
 	switch {
 	case difficult == "medium":
@@ -144,7 +155,7 @@ func handleNewGame(w http.ResponseWriter, r *http.Request) {
 	answerNewGame, _ := json.Marshal(&newGame{size*size, field2.mines, guid})
 	w.WriteHeader(200)
 	w.Write(answerNewGame)
-	log.Printf("New game %s started in %s!\n", guid, field2.gameStartTime)
+	log.Printf("New game %s started in %s!\n", guid, time.Now())
 }
 
 func handleTurn(w http.ResponseWriter, r *http.Request) {
@@ -157,18 +168,26 @@ func handleTurn(w http.ResponseWriter, r *http.Request) {
 	guid := r.URL.Query().Get("guid")
 	field, _ := strconv.Atoi(r.URL.Query().Get("field"))
 	if mf, ok := allGames[guid]; ok {
-		if field < len(allGames[guid].cells) && mf.currentStatus == byte(0) {
-			answerTurn, _ := json.Marshal(&turn{0, field, int(allGames[guid].cells[field])})
+		if mf.currentStatus == 5 { //if its first turn
+			mf.currentStatus = 0
+		}
+		if field < len(mf.cells) {
+			currentTurn := &turnsChrono{field, time.Now()}
+			mf.addChrono(*currentTurn)
+			answerTurn, _ := json.Marshal(&turn{int(mf.currentStatus), field, int(mf.cells[field])})
 			w.Write(answerTurn)
-			//log.Println(guid, field, int(allGames[guid].cells[field]))
-		} else {
-			answerTurn, _ := json.Marshal(&turn{int(mf.currentStatus), field, 0})
-			w.Write(answerTurn)
+			if int(mf.cells[field]) == 9 {
+				mf.currentStatus = byte(1)
+			}
+			mutex.Lock()
+			allGames[guid] = mf
+			mutex.Unlock()
 		}
 	} else {
 		//return Game not found
 		w.WriteHeader(http.StatusNotFound)
 	}
+	log.Printf("%v", allGames)
 }
 
 func handleGameOver(w http.ResponseWriter, r *http.Request) {
@@ -186,9 +205,9 @@ func handleGameOver(w http.ResponseWriter, r *http.Request) {
 		}
 		answerGameOver, _ := json.Marshal(&returnMines)
 		w.Write(answerGameOver)
-		mf.currentStatus = byte(1)
+		mutex.Lock()
 		allGames[guid] = mf
-		log.Println(mf)
+		mutex.Unlock()
 	} else {
 		//return Game not found
 		w.WriteHeader(http.StatusNotFound)
