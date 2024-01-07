@@ -7,9 +7,9 @@ spec:
   source:
     repoURL: 'git@github.com:rumnow/minesweeper.git'
     targetRevision: main
-    path: go-app
+    path: infra
   destination:
-    name: 'minesweeper-app'
+    name: ''
     namespace: minesweeper
     server: https://kubernetes.default.svc
   syncPolicy:
