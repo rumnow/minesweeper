@@ -2,15 +2,20 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: mongo
-  namespace: minesweeper
 spec:
-  project: default
-  source:
-    repoURL: git@github.com:rumnow/minesweeper.git
-    targetRevision: main
-    path: infra/helm/mongodb
   destination:
-    server: https://kubernetes.default.svc
+    name: ''
+    namespace: minesweeper
+    server: 'https://kubernetes.default.svc'
+  source:
+    path: infra/helm/mongodb
+    repoURL: 'git@github.com:rumnow/minesweeper.git'
+    targetRevision: main
+  sources: []
+  project: default
   syncPolicy:
     automated:
       prune: true
+      selfHeal: false
+    syncOptions:
+      - CreateNamespace=true
