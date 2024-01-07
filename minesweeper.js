@@ -165,7 +165,7 @@ function startGame(fieldS, minesC, uuid) {
                             this.setAttribute('checked', '1');
                             _a.label = 4;
                         case 4:
-                            win();
+                            win(uuid);
                             return [2 /*return*/];
                     }
                 });
@@ -187,7 +187,7 @@ function startGame(fieldS, minesC, uuid) {
                 minesLeft--;
             }
             minesLeftSpan.textContent = minesLeft.toString();
-            win();
+            win(uuid);
         });
     });
     //
@@ -210,7 +210,6 @@ function getMines(index, uuid) {
                     return [4 /*yield*/, response.json()];
                 case 2:
                     data = _a.sent();
-                    // Обработка полученных данных
                     mines = parseInt(data.mines);
                     return [3 /*break*/, 4];
                 case 3:
@@ -240,7 +239,6 @@ function getAllMines(uuid) {
                     return [4 /*yield*/, response.json()];
                 case 2:
                     data = _a.sent();
-                    // Обработка полученных данных
                     mines = data.mines;
                     return [3 /*break*/, 4];
                 case 3:
@@ -256,17 +254,44 @@ function getAllMines(uuid) {
 }
 ///////////
 //win?
-function win() {
-    if (fieldSize === minesCount + arrChecked.filter(function (value) { return value === true; }).length) {
-        stopTimer();
-        setTimeout(function () {
-            alert("You win!");
-            location.reload();
-            // hideElement("gameField")
-            // showElement("fireworkContainer")
-            // createFirework();
-        }, 400);
-    }
+function win(uuid) {
+    return __awaiter(this, void 0, void 0, function () {
+        var response, data, error_4;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    if (!(fieldSize === minesCount + arrChecked.filter(function (value) { return value === true; }).length)) return [3 /*break*/, 6];
+                    stopTimer();
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 4, , 5]);
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/win?guid=".concat(uuid))];
+                case 2:
+                    response = _a.sent();
+                    if (!response.ok) {
+                        throw new Error('Win: query error to server');
+                    }
+                    return [4 /*yield*/, response.json()];
+                case 3:
+                    data = _a.sent();
+                    return [3 /*break*/, 5];
+                case 4:
+                    error_4 = _a.sent();
+                    console.error("Can't conrats you :(", error_4);
+                    return [3 /*break*/, 5];
+                case 5:
+                    setTimeout(function () {
+                        alert("You win!");
+                        location.reload();
+                        // hideElement("gameField")
+                        // showElement("fireworkContainer")
+                        // createFirework();
+                    }, 400);
+                    _a.label = 6;
+                case 6: return [2 /*return*/];
+            }
+        });
+    });
 }
 function startTimer() {
     timerInterval = setInterval(function () {
@@ -331,19 +356,16 @@ function checkEmptyCell(index, uuid) {
                     cell = document.querySelector("button[index=\"".concat(cellIndex, "\"]"));
                     if (!cell || arrChecked[cellIndex])
                         return [3 /*break*/, 3]; // Если клетка уже проверена или не существует, переходим к следующей итерации
+                    arrChecked[cellIndex] = true;
+                    cell.setAttribute('checked', '1');
                     return [4 /*yield*/, getMines(cellIndex, uuid)];
                 case 2:
                     mines = _a.sent();
-                    //console.log(`Checkemptycell mines:`, mines);
-                    if (mines === 0 /*&& checkMinesCount(cellIndex) === 0*/) {
-                        arrChecked[cellIndex] = true;
-                        cell.setAttribute('checked', '1');
+                    if (mines === 0) {
                         checkEmptyCell(cellIndex, uuid); //await?
                     }
                     else {
-                        arrChecked[cellIndex] = true;
                         cell.textContent = mines.toString();
-                        cell.setAttribute('checked', '1');
                     }
                     _a.label = 3;
                 case 3:

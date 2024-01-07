@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,6 +15,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type mineField struct {
@@ -33,12 +36,49 @@ func (mf *mineField) addChrono(tC turnsChrono) {
 }
 
 type turnsChrono struct {
-	cellIndex int
-	turnTime time.Time
+	CellIndex int
+	TurnTime time.Time
 }
 
 var allGames map[string]mineField
 var mutex sync.Mutex // 1 mutex for all 8-(
+var mongoClient *mongo.Client
+var mongoDB *mongo.Database
+
+func main() {
+	defer func() {
+		err := mongoClient.Disconnect(context.TODO())
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	var err error
+	allGames = make(map[string]mineField)
+	port := 80
+	addr := fmt.Sprintf(":%v", port)
+	opts := options.Client().ApplyURI("mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000")
+	mongoClient, err = mongo.Connect(context.TODO(), opts)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = mongoClient.Ping(context.TODO(), nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mongoDB = mongoClient.Database("minesweeper")
+	//mongoCollection = database.Collection("collection-name")
+	fmt.Println("Connected to MongoDB!")
+	fmt.Println("......")
+
+	// -- Handlers ##########################
+	http.HandleFunc("/newgame", handleNewGame)
+	http.HandleFunc("/turn", handleTurn)
+	http.HandleFunc("/gameover", handleGameOver)
+	http.HandleFunc("/win", handleWin)
+	// -- ###################################
+	fmt.Printf("Starting server on %v port...\n", port)
+	http.ListenAndServe(addr, nil)
+}
 
 // Create new field struct
 func newMineField(size int, difficult byte) mineField {
@@ -114,19 +154,28 @@ func fillCell(arrField *[]byte) {
 	}
 }
 
-func main() {
-	allGames = make(map[string]mineField)
-	port := 80
-	addr := fmt.Sprintf(":%v", port)
-	fmt.Println("......")
-
-	// -- Handlers
-	http.HandleFunc("/newgame", handleNewGame)
-	http.HandleFunc("/turn", handleTurn)
-	http.HandleFunc("/gameover", handleGameOver)
-
-	fmt.Printf("Starting server on %v port...\n", port)
-	http.ListenAndServe(addr, nil)
+func handleWin(w http.ResponseWriter, r *http.Request) {
+	type winGame struct {
+		Duration int `json:"duration"`
+		Position int `json:"position"`
+		Rating []string `json:"rating"`
+	}
+	wg := winGame{}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	guid := r.URL.Query().Get("guid")
+	if mf, ok := allGames[guid]; ok {
+		//log.Println("WIN", guid, len(mf.cells), "=", len(mf.chrono) + mf.mines)
+		//if len(mf.cells) == len(mf.chrono) + mf.mines { //really win?
+		mf.currentStatus = 2
+		mf.gameDuration = int(mf.chrono[len(mf.chrono)-1].TurnTime.Sub(mf.chrono[0].TurnTime).Milliseconds())
+		mutex.Lock()
+		allGames[guid] = mf
+		mutex.Unlock()
+		saveGame(guid)
+		wg = winGame{mf.gameDuration, 4, []string{"s1", "s2", "s3"}}
+		answerWin, _ := json.Marshal(&wg)
+		w.Write(answerWin)
+	}
 }
 
 func handleNewGame(w http.ResponseWriter, r *http.Request) {
@@ -182,13 +231,49 @@ func handleTurn(w http.ResponseWriter, r *http.Request) {
 			mutex.Lock()
 			allGames[guid] = mf
 			mutex.Unlock()
+			//log.Printf(":%v", int(mf.chrono[len(mf.chrono)-1].turnTime.Sub(mf.chrono[0].turnTime).Milliseconds()))
 		}
 	} else {
 		//return Game not found
 		w.WriteHeader(http.StatusNotFound)
 	}
-	log.Printf("%v", allGames)
 }
+
+// save game with guid to DB
+func saveGame(guid string) {
+	type mongoMf struct {
+		Uuid string `json:"uuid"`
+		Size int `json:"size"`
+		Mines int `json:"mines"`
+		Difficult byte `json:"difficult"`
+		GameDuration int `json:"gameduration"`
+		Cells []byte `json:"cells"`
+		Chrono []turnsChrono `json:"chrono"`
+		CurrentStatus byte `json:"gamestatus"`
+	}
+	if mf, ok := allGames[guid]; ok {
+		mongoCollection := mongoDB.Collection("turns")
+        mongoMF := &mongoMf{
+            Uuid:         guid,
+            Size:         mf.size,
+            Mines:        mf.mines,
+            Difficult:    mf.difficult,
+            GameDuration: mf.gameDuration,
+            Cells:        mf.cells,
+            Chrono:       mf.chrono,
+            CurrentStatus: mf.currentStatus,
+        }
+		_, err := mongoCollection.InsertOne(context.TODO(), mongoMF)
+        if err != nil {
+            log.Printf("Failed to save game %s: %v", guid, err)
+            return
+        }
+        log.Printf("Game %s saved successfully!", guid)
+    } else {
+        log.Printf("Game %s not found in allGames", guid)
+    }
+}
+
 
 func handleGameOver(w http.ResponseWriter, r *http.Request) {
 	type allMines struct {
@@ -198,6 +283,7 @@ func handleGameOver(w http.ResponseWriter, r *http.Request) {
 	guid := r.URL.Query().Get("guid")
 	returnMines := allMines{}
 	if mf, ok := allGames[guid]; ok {
+		mf.gameDuration = int(mf.chrono[len(mf.chrono)-1].TurnTime.Sub(mf.chrono[0].TurnTime).Milliseconds())
 		for i, v := range allGames[guid].cells {
 			if v == 9 {
 				returnMines.Mines = append(returnMines.Mines, i)
@@ -208,6 +294,7 @@ func handleGameOver(w http.ResponseWriter, r *http.Request) {
 		mutex.Lock()
 		allGames[guid] = mf
 		mutex.Unlock()
+		saveGame(guid)
 	} else {
 		//return Game not found
 		w.WriteHeader(http.StatusNotFound)

@@ -29,7 +29,7 @@ window.onload = () => {
     startNewGame()
 }
 
-function startNewGame(){
+function startNewGame() {
     const fieldSizeSlider = document.getElementById('fieldSize') as HTMLInputElement;
     const fieldSizeValueDisplay = document.getElementById('fieldSizeValue') as HTMLElement;
 
@@ -83,11 +83,11 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
         button?.setAttribute('index', index.toString());
         buttonsContainer?.appendChild(button);
 
-        button.addEventListener('click', async function() {
+        button.addEventListener('click', async function () {
             arrChecked[index] = true; //левая кнопка мыши
             const currentIndex = Number(this.getAttribute('index'));
             const currentMines = await getMines(currentIndex, uuid);
-            if (this.textContent !== '⛳️'){ //проверяем на флажок
+            if (this.textContent !== '⛳️') { //проверяем на флажок
                 if (currentMines === 9) {
                     const allMines: number[] = await getAllMines(uuid);
                     console.log(allMines);
@@ -113,9 +113,9 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
                     this.setAttribute('checked', '1');
                 }
             }
-            win();
+            win(uuid);
         });
-        button.addEventListener('contextmenu', function(event) {
+        button.addEventListener('contextmenu', function (event) {
             event.preventDefault(); //правая кнопка мыши
             if (this.textContent === '⛳️') {
                 if (this.getAttribute('checked') === '1' && arrField[index] > 0) {
@@ -124,12 +124,12 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
                     this.textContent = '';
                 }
                 minesLeft++;
-            } else if (minesLeft > 0){
+            } else if (minesLeft > 0) {
                 this.textContent = '⛳️';
                 minesLeft--;
             }
             minesLeftSpan.textContent = minesLeft.toString();
-            win();
+            win(uuid);
         });
     });
     //
@@ -146,10 +146,7 @@ async function getMines(index: number, uuid: string): Promise<number> {
             throw new Error('Ошибка при запросе к серверу');
         }
         const data = await response.json();
-        // Обработка полученных данных
         mines = parseInt(data.mines)
-        //console.log("Status game", data.gamestatus)
-        //startGame(parseInt(data.size), parseInt(data.mines), String(data.guid));
     } catch (error) {
         console.error('Ошибка при создании игры:', error);
     }
@@ -166,9 +163,7 @@ async function getAllMines(uuid: string): Promise<number[]> {
             throw new Error('Ошибка при запросе к серверу');
         }
         const data = await response.json();
-        // Обработка полученных данных
         mines = data.mines
-        //startGame(parseInt(data.size), parseInt(data.mines), String(data.guid));
     } catch (error) {
         console.error('Ошибка при создании игры:', error);
     }
@@ -179,9 +174,20 @@ async function getAllMines(uuid: string): Promise<number[]> {
 ///////////
 
 //win?
-function win(): void {
+async function win(uuid: string) {
     if (fieldSize === minesCount + arrChecked.filter(value => value === true).length) {
         stopTimer();
+        // table of records query
+        try {
+            const response = await fetch(`http://ms.justmy.site/win?guid=${uuid}`);
+            if (!response.ok) {
+                throw new Error('Win: query error to server');
+            }
+            const data = await response.json();
+
+        } catch (error) {
+            console.error("Can't conrats you :(", error);
+        }
         setTimeout(() => {
             alert("You win!");
             location.reload();
@@ -217,20 +223,20 @@ function updateTimerDisplay() {
 //считаем пустые поля
 async function checkEmptyCell(index: number, uuid: string) {
     let neighborI: number[] = [];
-    switch (true){
+    switch (true) {
         case (index === 0): //левый верхний угол
             neighborI = [1, fieldWidth];
             break;
-        case (index === fieldWidth-1): //правый верхний угол
+        case (index === fieldWidth - 1): //правый верхний угол
             neighborI = [-1, fieldWidth];
             break;
         case (index < fieldWidth): //верхняя строка
             neighborI = [-1, 1, fieldWidth];
             break;
-        case (index === fieldSize-fieldWidth): //левый нижний угол
+        case (index === fieldSize - fieldWidth): //левый нижний угол
             neighborI = [1, -fieldWidth];
             break;
-        case (index === fieldSize-1): //правый нижний угол
+        case (index === fieldSize - 1): //правый нижний угол
             neighborI = [-1, -fieldWidth];
             break;
         case (index > fieldSize - fieldWidth): //нижняя строка
@@ -244,7 +250,7 @@ async function checkEmptyCell(index: number, uuid: string) {
             break;
         default: //обычные клетки 4 соседа
             neighborI = [-fieldWidth, -1, 1, fieldWidth];
-            //console.log(currentIndex);
+        //console.log(currentIndex);
     }
     //console.log(`Checkemptycell:`, index)
     for (const element of neighborI) {
@@ -252,17 +258,14 @@ async function checkEmptyCell(index: number, uuid: string) {
         const cell = document.querySelector(`button[index="${cellIndex}"]`) as HTMLButtonElement;
         if (!cell || arrChecked[cellIndex]) continue; // Если клетка уже проверена или не существует, переходим к следующей итерации
 
+        arrChecked[cellIndex] = true;
+        cell.setAttribute('checked', '1');
         const mines: number = await getMines(cellIndex, uuid);
-        //console.log(`Checkemptycell mines:`, mines);
 
-        if (mines === 0 /*&& checkMinesCount(cellIndex) === 0*/) {
-            arrChecked[cellIndex] = true;
-            cell.setAttribute('checked', '1');
+        if (mines === 0) {
             checkEmptyCell(cellIndex, uuid); //await?
         } else {
-            arrChecked[cellIndex] = true;
             cell.textContent = mines.toString();
-            cell.setAttribute('checked', '1');
         }
     };
 }
