@@ -6,7 +6,7 @@ metadata:
     app: minesweeper-app
   namespace: minesweeper
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: minesweeper-app
