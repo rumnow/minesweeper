@@ -1,0 +1,17 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minesweeper-app
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:rumnow/minesweeper.git'
+    targetRevision: main
+    path: go-app
+  destination:
+    name: 'minesweeper-app'
+    namespace: minesweeper
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true

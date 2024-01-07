@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minesweeper-app
+  labels:
+    app: minesweeper-app
+  namespace: minesweeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minesweeper-app
+  template:
+    metadata:
+      labels:
+        app: minesweeper-app
+    spec:
+      containers:
+      - name: minesweeper-app
+        image: rumrum/minesweeper
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        # readinessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: 8080
+        #   initialDelaySeconds: 5
+        #   periodSeconds: 10
+        # livenessProbe:
+        #   httpGet:
+        #     path: /healthz
+        #     port: 8080
+        #   initialDelaySeconds: 10
+        #   periodSeconds: 30
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: minesweeper-app-service
+  namespace: minesweeper
+spec:
+  selector:
+    app: minesweeper-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minesweeper-app-ingress
+  namespace: minesweeper
+spec:
+  rules:
+    - host: ms.justmy.site
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minesweeper-app-service
+                port:
+                  number: 80

@@ -8,7 +8,7 @@ spec:
     namespace: minesweeper
     server: 'https://kubernetes.default.svc'
   source:
-    path: infra/helm/mongodb
+    path: infra
     repoURL: 'git@github.com:rumnow/minesweeper.git'
     targetRevision: main
   sources: []

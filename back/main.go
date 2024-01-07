@@ -56,7 +56,7 @@ func main() {
 	allGames = make(map[string]mineField)
 	port := 80
 	addr := fmt.Sprintf(":%v", port)
-	opts := options.Client().ApplyURI("mongodb://localhost:27017/?directConnection=true&serverSelectionTimeoutMS=2000")
+	opts := options.Client().ApplyURI("mongodb://minesweeper-mongo-mongodb:27017/?directConnection=true&serverSelectionTimeoutMS=2000")
 	mongoClient, err = mongo.Connect(context.TODO(), opts)
 	if err != nil {
 		log.Fatal(err)
