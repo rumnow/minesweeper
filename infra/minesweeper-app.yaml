@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: minesweeper-app
-        image: rumrum/minesweeper
+        image: rumrum/minesweeper:main
         ports:
         - containerPort: 8080
         resources:
