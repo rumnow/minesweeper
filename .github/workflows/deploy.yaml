@@ -27,14 +27,21 @@ jobs:
       - name: Get Git Tag
         run: echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.PATH_TAG }}
+          tags: |
+            type=semver,pattern={{version}}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: back
-          load: true
           push: true
-          tags: |
-            ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
         env:
           DOCKER_BUILDKIT: 1
 
