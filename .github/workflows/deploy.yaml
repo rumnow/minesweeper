@@ -23,8 +23,7 @@ jobs:
         with:
           images: ${{ env.PATH_TAG }}
           tags: |
-            type=semver,pattern={{version}},value=v0.0.5
-            type=edge,branch=main
+            type=semver,pattern={{version}},value=v0.0.1
             type=sha
 
       - name: Login to Docker Hub
@@ -37,6 +36,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: back
-          push: false
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
