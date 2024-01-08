@@ -6,6 +6,7 @@ on:
       - "main"
 
 env:
+  GIT_TAG: $(git describe --tags --abbrev=0)
   PATH_TAG: rumrum/minesweeper
   COMMIT_HASH: ${{ github.sha }}
 
@@ -23,21 +24,30 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Build and export to Docker
-      #   uses: docker/build-push-action@v5
-      #   with:
-      #     context: back
-      #     load: true
+      - name: Get Git Tag
+        run: echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
 
-      - name: Build Docker image
-        run: |
-          cd back
-          GIT_TAG=$(git describe --tags --abbrev=0)
-          echo $GIT_TAG
-          docker build -t ${{ env.PATH_TAG }}:${GIT_TAG} .
-          docker push ${{ env.PATH_TAG }}:${GIT_TAG}
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: back
+          load: true
+          push: true
+          tags: |
+            ${{ env.PATH_TAG }}:${{ env.GIT_TAG }}
         env:
           DOCKER_BUILDKIT: 1
+
+
+      # - name: Build Docker image
+      #   run: |
+      #     cd back
+      #     GIT_TAG=$(git describe --tags --abbrev=0)
+      #     echo $GIT_TAG
+      #     docker build -t ${{ env.PATH_TAG }}:${GIT_TAG} .
+      #     docker push ${{ env.PATH_TAG }}:${GIT_TAG}
+      #   env:
+      #     DOCKER_BUILDKIT: 1
 
 
 
