@@ -16,10 +16,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      ## - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v3
-      - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
@@ -27,7 +23,10 @@ jobs:
         with:
           images: ${{ env.PATH_TAG }}
           tags: |
+            type=ref,event=branch
+            type=ref,event=pr
             type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
@@ -42,57 +41,3 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-
-
-      # - name: Build Docker image
-      #   run: |
-      #     cd back
-      #     GIT_TAG=$(git describe --tags --abbrev=0)
-      #     echo $GIT_TAG
-      #     docker build -t ${{ env.PATH_TAG }}:${GIT_TAG} .
-      #     docker push ${{ env.PATH_TAG }}:${GIT_TAG}
-      #   env:
-      #     DOCKER_BUILDKIT: 1
-
-
-
-#       - name: Deploy new Docker image on the target server
-#         run: |
-#           echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
-#           chmod 600 id_rsa
-#           ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} -p18022 <<EOF
-#             sudo docker pull ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
-#             sudo docker stop minesweeper && sudo docker rm minesweeper || true
-#             sudo docker run -d --network jj-network --name minesweeper ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
-#           EOF
-
-#       - uses: actions/checkout@v4
-#       - name: copy nginx config
-#         uses: appleboy/scp-action@v0.1.7
-#         with:
-#           host: ${{ secrets.SSH_SERVER_IP }}
-#           username: ${{ secrets.USER_NAME }}
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           port: 18022
-#           source: "nginx/ms.justmy.site.conf"
-#           target: /opt/jj-nginx/conf.d
-
-#       - uses: actions/checkout@v4
-#       - name: copy frontend
-#         uses: appleboy/scp-action@v0.1.7
-#         with:
-#           host: ${{ secrets.SSH_SERVER_IP }}
-#           username: ${{ secrets.USER_NAME }}
-#           key: ${{ secrets.SSH_PRIVATE_KEY }}
-#           port: 18022
-#           source: "minesweeper.js,styles.css,index.html"
-#           target: /opt/jj-nginx/conf.d/minesweeper
-
-#       - name: Deploy frontend
-#         run: |
-#           ssh -o StrictHostKeyChecking=no -i id_rsa ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_SERVER_IP }} -p18022 <<EOF
-#             sudo docker exec -t jj-nginx nginx -s reload
-#           EOF
-
-#       - name: cleanup
-#         run: rm -rf id_rsa
