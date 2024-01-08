@@ -6,9 +6,7 @@ on:
       - "main"
 
 env:
-  GIT_TAG: $(git describe --tags --abbrev=0)
   PATH_TAG: rumrum/minesweeper
-  COMMIT_HASH: ${{ github.sha }}
 
 jobs:
   docker:
