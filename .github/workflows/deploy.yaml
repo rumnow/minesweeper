@@ -23,7 +23,7 @@ jobs:
         with:
           images: ${{ env.PATH_TAG }}
           tags: |
-            type=pep440,pattern={{version}}
+            type=semver,pattern={{version}},value=v0.0.5
             type=edge,branch=main
             type=sha
 
