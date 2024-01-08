@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   annotations:
     argocd-image-updater.argoproj.io/image-list: rumrum/minesweeper
-    argocd-image-updater.argoproj.io/rumrum.minewsweeper.update-strategy: semver
+    argocd-image-updater.argoproj.io/rumrum/minewsweeper.update-strategy: semver
   name: minesweeper-app
   labels:
     app: minesweeper-app
