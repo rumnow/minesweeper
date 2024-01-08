@@ -24,21 +24,23 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and export to Docker
-        uses: docker/build-push-action@v5
-        with:
-          context: back
-          load: true
+      # - name: Build and export to Docker
+      #   uses: docker/build-push-action@v5
+      #   with:
+      #     context: back
+      #     load: true
 
       - name: Build Docker image
         run: |
           cd back
+          echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
           docker build -t ${{ env.PATH_TAG }}:${{ env.GIT_TAG }} .
           docker push ${{ env.PATH_TAG }}:${{ env.GIT_TAG }}
         env:
           DOCKER_BUILDKIT: 1
 
-          
+
+
 #       - name: Deploy new Docker image on the target server
 #         run: |
 #           echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
