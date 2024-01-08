@@ -8,7 +8,6 @@ on:
 env:
   PATH_TAG: rumrum/minesweeper
   COMMIT_HASH: ${{ github.sha }}
-  GIT_TAG: $(git describe --tags --abbrev=0)
 
 jobs:
   docker:
@@ -33,9 +32,10 @@ jobs:
       - name: Build Docker image
         run: |
           cd back
-          echo "GIT_TAG=$(git describe --tags --abbrev=0)" >> $GITHUB_ENV
-          docker build -t ${{ env.PATH_TAG }}:${{ env.GIT_TAG }} .
-          docker push ${{ env.PATH_TAG }}:${{ env.GIT_TAG }}
+          GIT_TAG=$(git describe --tags --abbrev=0)
+          echo $GIT_TAG
+          docker build -t ${{ env.PATH_TAG }}:${GIT_TAG} .
+          docker push ${{ env.PATH_TAG }}:${GIT_TAG}
         env:
           DOCKER_BUILDKIT: 1
 
