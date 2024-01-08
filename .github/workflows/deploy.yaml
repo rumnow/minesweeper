@@ -23,10 +23,7 @@ jobs:
         with:
           images: ${{ env.PATH_TAG }}
           tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{raw}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=pep440,pattern={{version}},value=0.0.5
 
       - name: Login to Docker Hub
         uses: docker/login-action@v3
