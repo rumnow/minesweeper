@@ -38,6 +38,7 @@ jobs:
         env:
           DOCKER_BUILDKIT: 1
 
+          
 #       - name: Deploy new Docker image on the target server
 #         run: |
 #           echo "${{ secrets.SSH_PRIVATE_KEY }}" > id_rsa
