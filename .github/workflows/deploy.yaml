@@ -18,6 +18,8 @@ jobs:
         uses: actions/checkout@v4
       # - name: Set up Docker Buildx
       #   uses: docker/setup-buildx-action@v3
+      - name: Fetch tags
+        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
