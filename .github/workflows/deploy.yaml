@@ -34,7 +34,7 @@ jobs:
           load: true
           push: true
           tags: |
-            ${{ env.PATH_TAG }}:${{ env.GIT_TAG }}
+            ${{ env.PATH_TAG }}:${{ env.COMMIT_HASH }}
         env:
           DOCKER_BUILDKIT: 1
 
