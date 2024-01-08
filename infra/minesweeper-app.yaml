@@ -1,6 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: docker.io/rumrum/minesweeper:~0.0
+    argocd-image-updater.argoproj.io/rumrum.minewsweeper.update-strategy: semver
   name: minesweeper-app
   labels:
     app: minesweeper-app
