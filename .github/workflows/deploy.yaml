@@ -3,9 +3,9 @@ name: ci
 on:
   push:
     branches:
-      - 'master'
-    # tags:
-    #   - 'v*'
+      - 'main'
+    tags:
+      - 'v*'
 
 env:
   PATH_TAG: rumrum/minesweeper
