@@ -141,7 +141,13 @@ function startGame(fieldS: number, minesC: number, uuid: string): void {
 async function getMines(index: number, uuid: string): Promise<number> {
     let mines: number;
     try {
-        const response = await fetch(`http://ms.justmy.site/turn?guid=${uuid}&field=${index}`);
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Cookie': `cookie_uuid=${uuid}`
+            }
+        };
+        const response = await fetch(`http://ms.justmy.site/turn?guid=${uuid}&field=${index}`, requestOptions);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }
@@ -158,7 +164,13 @@ async function getMines(index: number, uuid: string): Promise<number> {
 async function getAllMines(uuid: string): Promise<number[]> {
     let mines: number[];
     try {
-        const response = await fetch(`http://ms.justmy.site/gameover?guid=${uuid}`);
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Cookie': `cookie_uuid=${uuid}`
+            }
+        };
+        const response = await fetch(`http://ms.justmy.site/gameover?guid=${uuid}`, requestOptions);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }
@@ -179,7 +191,13 @@ async function win(uuid: string) {
         stopTimer();
         // table of records query
         try {
-            const response = await fetch(`http://ms.justmy.site/win?guid=${uuid}`);
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Cookie': `cookie_uuid=${uuid}`
+                }
+            };
+            const response = await fetch(`http://ms.justmy.site/win?guid=${uuid}`, requestOptions);
             if (!response.ok) {
                 throw new Error('Win: query error to server');
             }

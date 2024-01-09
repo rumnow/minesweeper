@@ -196,12 +196,18 @@ function startGame(fieldS, minesC, uuid) {
 }
 function getMines(index, uuid) {
     return __awaiter(this, void 0, void 0, function () {
-        var mines, response, data, error_2;
+        var mines, requestOptions, response, data, error_2;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/turn?guid=".concat(uuid, "&field=").concat(index))];
+                    requestOptions = {
+                        method: 'GET',
+                        headers: {
+                            'Cookie': "cookie_uuid=".concat(uuid)
+                        }
+                    };
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/turn?guid=".concat(uuid, "&field=").concat(index), requestOptions)];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {
@@ -225,12 +231,18 @@ function getMines(index, uuid) {
 }
 function getAllMines(uuid) {
     return __awaiter(this, void 0, void 0, function () {
-        var mines, response, data, error_3;
+        var mines, requestOptions, response, data, error_3;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
                     _a.trys.push([0, 3, , 4]);
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/gameover?guid=".concat(uuid))];
+                    requestOptions = {
+                        method: 'GET',
+                        headers: {
+                            'Cookie': "cookie_uuid=".concat(uuid)
+                        }
+                    };
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/gameover?guid=".concat(uuid), requestOptions)];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {
@@ -256,7 +268,7 @@ function getAllMines(uuid) {
 //win?
 function win(uuid) {
     return __awaiter(this, void 0, void 0, function () {
-        var response, data, error_4;
+        var requestOptions, response, data, error_4;
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
@@ -265,7 +277,13 @@ function win(uuid) {
                     _a.label = 1;
                 case 1:
                     _a.trys.push([1, 4, , 5]);
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/win?guid=".concat(uuid))];
+                    requestOptions = {
+                        method: 'GET',
+                        headers: {
+                            'Cookie': "cookie_uuid=".concat(uuid)
+                        }
+                    };
+                    return [4 /*yield*/, fetch("http://ms.justmy.site/win?guid=".concat(uuid), requestOptions)];
                 case 2:
                     response = _a.sent();
                     if (!response.ok) {
