@@ -60,26 +60,6 @@ spec:
   type: ClusterIP
 
 ---
-
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: minesweeper-app-ingress
-  namespace: minesweeper
-spec:
-  rules:
-    - host: ms.justmy.site
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: minesweeper-app-service
-                port:
-                  number: 80
-
----
 ### FRONT
 
 apiVersion: apps/v1
@@ -130,3 +110,23 @@ spec:
       port: 80
       targetPort: 80
   type: ClusterIP
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minesweeper-front-ingress
+  namespace: minesweeper
+spec:
+  rules:
+    - host: ms.justmy.site
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minesweeper-front-service
+                port:
+                  number: 80
