@@ -130,8 +130,8 @@ spec:
             backend:
               service:
                 name: minesweeper-front-service
-              port:
-                number: 80
+                port:
+                  number: 80
   tls:
   - hosts:
     - ms.justmy.site
