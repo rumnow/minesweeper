@@ -79,7 +79,7 @@ function startNewGame() {
                 switch (_a.label) {
                     case 0:
                         _a.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, fetch("http://ms.justmy.site/newgame?difficulty=".concat(difficulty, "&size=").concat(size))];
+                        return [4 /*yield*/, fetch("https://ms.justmy.site/newgame?difficulty=".concat(difficulty, "&size=").concat(size))];
                     case 1:
                         response = _a.sent();
                         if (!response.ok) {
@@ -207,7 +207,7 @@ function getMines(index, uuid) {
                             'Cookie': "cookie_uuid=".concat(uuid)
                         }
                     };
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/turn?guid=".concat(uuid, "&field=").concat(index), requestOptions)];
+                    return [4 /*yield*/, fetch("https://ms.justmy.site/turn?guid=".concat(uuid, "&field=").concat(index), requestOptions)];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {
@@ -242,7 +242,7 @@ function getAllMines(uuid) {
                             'Cookie': "cookie_uuid=".concat(uuid)
                         }
                     };
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/gameover?guid=".concat(uuid), requestOptions)];
+                    return [4 /*yield*/, fetch("https://ms.justmy.site/gameover?guid=".concat(uuid), requestOptions)];
                 case 1:
                     response = _a.sent();
                     if (!response.ok) {
@@ -283,7 +283,7 @@ function win(uuid) {
                             'Cookie': "cookie_uuid=".concat(uuid)
                         }
                     };
-                    return [4 /*yield*/, fetch("http://ms.justmy.site/win?guid=".concat(uuid), requestOptions)];
+                    return [4 /*yield*/, fetch("https://ms.justmy.site/win?guid=".concat(uuid), requestOptions)];
                 case 2:
                     response = _a.sent();
                     if (!response.ok) {

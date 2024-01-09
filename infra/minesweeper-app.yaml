@@ -137,22 +137,3 @@ spec:
     - ms.justmy.site
     secretName: minesweeper-server-tls
 
----
-#BACK
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: minesweeper-back-ingress
-  namespace: minesweeper
-spec:
-  rules:
-    - host: ms.justmy.site
-      http:
-        paths:
-          - path: /back
-            pathType: Prefix
-            backend:
-              service:
-                name: minesweeper-app-service
-                port:
-                  number: 80

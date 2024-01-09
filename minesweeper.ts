@@ -45,7 +45,7 @@ function startNewGame() {
         fieldWidth = parseInt(fieldSizeSlider.value)
         const createGame = async (size: number, difficulty: string) => {
             try {
-                const response = await fetch(`http://ms.justmy.site/newgame?difficulty=${difficulty}&size=${size}`);
+                const response = await fetch(`https://ms.justmy.site/newgame?difficulty=${difficulty}&size=${size}`);
                 if (!response.ok) {
                     throw new Error('Ошибка при запросе к серверу');
                 }
@@ -147,7 +147,7 @@ async function getMines(index: number, uuid: string): Promise<number> {
                 'Cookie': `cookie_uuid=${uuid}`
             }
         };
-        const response = await fetch(`http://ms.justmy.site/turn?guid=${uuid}&field=${index}`, requestOptions);
+        const response = await fetch(`https://ms.justmy.site/turn?guid=${uuid}&field=${index}`, requestOptions);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }
@@ -170,7 +170,7 @@ async function getAllMines(uuid: string): Promise<number[]> {
                 'Cookie': `cookie_uuid=${uuid}`
             }
         };
-        const response = await fetch(`http://ms.justmy.site/gameover?guid=${uuid}`, requestOptions);
+        const response = await fetch(`https://ms.justmy.site/gameover?guid=${uuid}`, requestOptions);
         if (!response.ok) {
             throw new Error('Ошибка при запросе к серверу');
         }
@@ -197,7 +197,7 @@ async function win(uuid: string) {
                     'Cookie': `cookie_uuid=${uuid}`
                 }
             };
-            const response = await fetch(`http://ms.justmy.site/win?guid=${uuid}`, requestOptions);
+            const response = await fetch(`https://ms.justmy.site/win?guid=${uuid}`, requestOptions);
             if (!response.ok) {
                 throw new Error('Win: query error to server');
             }
