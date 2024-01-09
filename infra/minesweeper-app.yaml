@@ -22,7 +22,7 @@ spec:
       - name: minesweeper-app
         image: rumrum/minesweeper
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         resources:
           requests:
             memory: "128Mi"
@@ -78,3 +78,55 @@ spec:
                 name: minesweeper-app-service
                 port:
                   number: 80
+
+---
+### FRONT
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    argocd-image-updater.argoproj.io/image-list: rumrum/minesweeper-front
+    argocd-image-updater.argoproj.io/rumrum.minesweeper.update-strategy: semver
+  name: minesweeper-front
+  labels:
+    app: minesweeper-front
+  namespace: minesweeper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: minesweeper-front
+  template:
+    metadata:
+      labels:
+        app: minesweeper-front
+    spec:
+      containers:
+      - name: minesweeper-front
+        image: rumrum/minesweeper-front
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: minesweeper-front-service
+  namespace: minesweeper
+spec:
+  selector:
+    app: minesweeper-front
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
