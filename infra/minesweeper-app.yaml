@@ -131,7 +131,7 @@ spec:
               service:
                 name: minesweeper-front-service
               port:
-                name: https
+                number: 80
   tls:
   - hosts:
     - ms.justmy.site
