@@ -8,10 +8,11 @@ on:
       - 'v*'
 #
 env:
-  PATH_TAG: rumrum/minesweeper
+  BACK_TAG: rumrum/minesweeper
+  FRONT_TAG: rumrum/minesweeper-front
 
 jobs:
-  docker:
+  docker-back:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,7 +22,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.PATH_TAG }}
+          images: ${{ env.BACK_TAG }}
           tags: |
             type=semver,pattern={{version}}
 
@@ -35,6 +36,34 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: back
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+  docker-front:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.FRONT_TAG }}
+          tags: |
+            type=semver,pattern={{version}}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
